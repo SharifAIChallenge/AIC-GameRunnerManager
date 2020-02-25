@@ -1,0 +1,30 @@
+---
+- hosts: master
+  tasks:
+    - name: Initialize server
+      include_role:
+        name: init
+    - name: Install packages
+      include_role:
+        name: install
+    - name: Install docker
+      include_role:
+        name: docker
+    - name: Install nfs-server
+      include_role:
+        name: nfs_server
+    - name: Install psql-server
+      include_role:
+        name: psql
+    - name: Start docker registry
+      include_role:
+        name: docker_registry
+    - name: Login registry
+      include_role:
+        name: login_registry
+    - name: Initialze swarm
+      include_role:
+        name: swarm_init
+    - name: Prune Job
+      include_role:
+        name: docker_prune

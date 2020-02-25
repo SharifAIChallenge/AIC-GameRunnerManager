@@ -1,0 +1,5 @@
+ubuntu_common_packages:
+  - vim
+  - python3-pip
+  - curl
+  - git

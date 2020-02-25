@@ -1,0 +1,9 @@
+compiles:
+  - cpp
+  - go
+  - java
+  - py3
+runs:
+  - server
+  - client
+master:

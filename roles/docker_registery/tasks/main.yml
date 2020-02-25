@@ -1,0 +1,113 @@
+- name: Remove old certs dir
+  file:
+    state: absent
+    path: "{{ certsroot }}"
+
+- name: Create certs dir on home
+  file:
+    state: directory
+    path: "{{ certsroot }}"
+
+- name: Create cert password file
+  copy:
+    content: "{{ registry.user }}\n{{ registry.pass }}\n"
+    dest: "{{ passfile }}"
+
+- name: Create openssl template
+  template:
+    src: openssl.cnf
+    dest: "{{ openssltmp }}"
+
+- name: write IP in openssl template
+  shell: echo "IP.1 = {{ inventory_hostname }}\n" >> {{ openssltmp }}
+
+- name: Generating ca key
+  shell: 'openssl genrsa -des3
+      -passout {{ passopt }}
+      -out {{ cakey }} 2048'
+
+- name: Generating ca file
+  shell: 'openssl req -new -x509 -days 365
+      -batch
+      -passin {{ passopt }}
+      -passout {{ passopt }}
+      -key {{ cakey }}
+      -out {{ cafile }}'
+
+- name: Generating registry key
+  shell: 'openssl genrsa -des3
+      -passout {{ passopt }}
+      -out {{ certsroot }}/registry.key 2048'
+
+- name: Generating request file
+  shell: 'openssl req -subj "/CN=$(hostname)" -new
+      -batch
+      -key {{ certsroot }}/registry.key
+      -out {{ certsroot }}/req.csr
+      -config {{ openssltmp }}
+      -passin {{ passopt }}
+      -passout {{ passopt }}'
+
+- name: Generating registry sertificate
+  shell: 'openssl x509 -req -days 365
+      -passin {{ passopt }}
+      -in {{ certsroot }}/req.csr
+      -CA {{ cafile }}
+      -CAkey {{ cakey }}
+      -CAcreateserial
+      -extensions v3_req
+      -extfile {{ openssltmp }}
+      -out {{ certsroot }}/registry.crt'
+
+- name: Removing key pass
+  shell: 'openssl rsa
+      -in {{ certsroot }}/registry.key
+      -out {{ certsroot }}/registry.key
+      -passin {{ passopt }}
+      -passout {{ passopt }}'
+
+- name: Clearing up
+  file:
+    state: absent
+    path: "{{ openssltmp }}"
+
+- name: Remove old registry
+  become: true
+  block:
+  - name: Remove old registry
+    command: docker rm -f registry
+  rescue:
+  - debug:
+      msg: "Old registry doesn't exists."
+  tags:
+  - registry
+
+- name: Create auth dir
+  file:
+    state: directory
+    path: "{{ authroot }}"
+  tags:
+  - registry
+
+- name: Create registry password file
+  become: true
+  shell: 'docker run --entrypoint htpasswd registry:2
+      -Bbn {{ registry.user }} {{ registry.pass }} > {{ authroot }}/htpasswd'
+
+- name: Create new regostry container
+  become: true
+  command: 'docker run
+                -d
+                -p 5000:5000
+                -v {{ authroot }}:/auth
+                -e "REGISTRY_AUTH=htpasswd"
+                -e "REGISTRY_AUTH_HTPASSWD_REALM=AIC Private Registry."
+                -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+				-v "{{ dataroot }}/data":/var/lib/registry
+                -v "{{ certsroot }}":/certs
+                -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt
+                -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key
+                -e REGISTRY_HTTP_ADDR=0.0.0.0:5000
+                --restart=always
+                --name registry
+                registry:2'

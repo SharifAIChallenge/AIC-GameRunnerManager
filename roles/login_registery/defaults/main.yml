@@ -1,0 +1,4 @@
+registry:
+  user: "reg_user"
+  pass: "reg_pass"
+master_ip: example.com

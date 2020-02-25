@@ -1,0 +1,22 @@
+all:
+  children:
+    master:
+      hosts:
+        master.example.com:
+    worker:
+      hosts:
+        worker1.example.com:
+        worker2.example.com:
+  vars:
+    ansible_user: user
+    ansible_sudo_pass: pass
+    ansible_python_interpreter: /usr/bin/python3
+    master: master.example.com
+    dockerfiles_git: https://github.com/SharifAIChallenge/AIC-DockerFiles.git
+    db:
+      name: db_name
+      user: db_user
+      pass: db_pass
+    registry:
+      user: registry_user
+      pass: registry_pass

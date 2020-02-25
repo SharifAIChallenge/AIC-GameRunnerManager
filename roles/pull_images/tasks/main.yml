@@ -1,0 +1,10 @@
+- name: Pull compile images
+  shell: "docker pull {{ master }}:5000/aic_{{ item }}_image"
+  with_items: "{{ compiles }}"
+
+- name: Pull run images
+  shell: "docker pull {{ master }}:5000/aic_{{ item }}_image"
+  with_items: "{{ runs }}"
+
+- name: Pull manager image
+  shell: "docker pull {{ master }}:5000/aic_manager_image"

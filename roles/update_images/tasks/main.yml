@@ -1,0 +1,26 @@
+- name: Create dockerfiles dir on home
+  git:
+    repo: "{{ dockerfiles_git }}"
+    dest: "{{ dockerfiles_path }}"
+
+- name: Build compile images
+  shell: "docker build {{ dockerfiles_path }}/compile-dockers/{{ item }} -t {{ master }}:5000/aic_{{ item }}_image"
+  with_items: "{{ compiles }}"
+
+- name: Build run images
+  shell: "docker build {{ dockerfiles_path }}/execute-dockers/{{ item }} -t {{ master }}:5000/aic_{{ item }}_image"
+  with_items: "{{ runs }}"
+
+- name: Build manager image
+  shell: "docker build {{ dockerfiles_path }}/manager-image -t {{ master }}:5000/aic_manager_image"
+
+- name: Push compile images
+  shell: "docker push {{ master }}:5000/aic_{{ item }}_image"
+  with_items: "{{ compiles }}"
+
+- name: Push run images
+  shell: "docker push {{ master }}:5000/aic_{{ item }}_image"
+  with_items: "{{ runs }}"
+
+- name: Push manager image
+  shell: "docker push {{ master }}:5000/aic_manager_image"

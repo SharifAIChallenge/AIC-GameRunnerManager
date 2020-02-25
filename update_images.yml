@@ -1,0 +1,6 @@
+---
+- hosts: master
+  tasks:
+    - name: Update images
+      include_role:
+        name: update_images

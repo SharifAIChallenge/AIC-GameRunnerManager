@@ -1,0 +1,27 @@
+---
+- hosts: worker
+  tasks:
+    - name: Initialize server
+      include_role:
+        name: init
+    - name: Install packages
+      include_role:
+        name: install
+    - name: Install docker
+      include_role:
+        name: docker
+    - name: Login registry
+      include_role:
+        name: login_registry
+    - name: Install nfs worker
+      include_role:
+        name: nfs_worker
+    - name: Initialze swarm worker
+      include_role:
+        name: swarm_join
+    - name: Prune Job
+      include_role:
+        name: docker_prune
+    - name: Pull Images
+      include_role:
+        name: pull_images

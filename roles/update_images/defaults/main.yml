@@ -1,0 +1,11 @@
+dockerfiles_git:
+dockerfiles_path: ~/dockerfiles
+compiles:
+  - cpp
+  - go
+  - java
+  - py3
+runs:
+  - server
+  - client
+master:

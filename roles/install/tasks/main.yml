@@ -1,0 +1,9 @@
+- name: Update apt-cache
+  become: true
+  apt: update_cache=yes
+
+- name: Install Packages
+  become: true
+  apt:
+    name: "{{ ubuntu_common_packages }}"
+    state: latest

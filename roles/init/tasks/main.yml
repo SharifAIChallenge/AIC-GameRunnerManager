@@ -1,0 +1,31 @@
+- name: Add authorized keys for deploy user
+  authorized_key: user={{ ansible_user }}
+    key="{{ lookup('file', item) }}"
+  with_items: "{{ public_keys }}"
+  tags:
+    - add-ssh-key
+
+- name: Disallow password authentication
+  become: true
+  lineinfile: dest=/etc/ssh/sshd_config
+    regexp="^PasswordAuthentication"
+    line="PasswordAuthentication no"
+    state=present
+
+- name: Disallow root SSH access
+  become: true
+  lineinfile: dest=/etc/ssh/sshd_config
+    regexp="^PermitRootLogin"
+    line="PermitRootLogin no"
+    state=present
+
+- name: Restart SSH
+  become: true
+  shell: sleep 3; systemctl restart ssh
+  async: 1
+  poll: 0
+
+- name: sleep for 4 seconds and continue with play
+  wait_for:
+    timeout: 4
+  delegate_to: localhost

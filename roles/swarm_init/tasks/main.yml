@@ -1,0 +1,2 @@
+- name: swarm init
+  shell: docker swarm init

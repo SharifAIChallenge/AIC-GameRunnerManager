@@ -1,0 +1,11 @@
+- name: swarm token
+  shell: docker swarm join-token manager -q
+  register: join
+  delegate_to: "{{ master }}"
+
+- debug:
+    msg: "{{ join }}"
+
+- name: join swarm
+  become: true
+  shell: docker swarm join --token {{ join.stdout }} {{master}}:2377

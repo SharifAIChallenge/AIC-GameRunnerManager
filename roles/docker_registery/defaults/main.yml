@@ -1,0 +1,13 @@
+root: "/home/{{ ansible_user }}/registry"
+certsroot: "{{ root }}/certs"
+authroot: "{{ root }}/auth"
+dataroot: "{{ root }}/data"
+cafile: "{{ certsroot }}/ca.crt"
+cakey: "{{ certsroot }}/ca.key"
+passfile: "{{ certsroot }}/pass"
+openssltmp: "{{ certsroot }}/openssl-tmp.cnf"
+passopt: "file:{{ passfile }}"
+registry:
+  user: "reg_user"
+  pass: "reg_pass"
+

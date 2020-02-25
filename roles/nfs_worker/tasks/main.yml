@@ -1,0 +1,26 @@
+- name: add ip to master /etc/exports
+  become: true
+  shell: "echo '/nfs {{ inventory_hostname }}(rw,sync,no_subtree_check,no_root_squash)' >> /etc/exports"
+  delegate_to: "{{ master }}"
+
+- name: restart nfs service
+  become: true
+  systemd:
+    state: restarted
+    name: nfs-kernel-server
+  delegate_to: "{{ master }}"
+
+- name: install
+  become: true
+  apt:
+    name: nfs-common
+
+- name: mkdir
+  become: true
+  file:
+    state: directory
+    path: /nfs
+
+- name: mount
+  become: true
+  shell: mount {{ master }}:/nfs /nfs

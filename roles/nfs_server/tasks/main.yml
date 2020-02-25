@@ -1,0 +1,13 @@
+- name: Install nfs server
+  become: true
+  apt:
+    name: nfs-kernel-server
+
+- name: mkdir
+  become: true
+  file:
+    state: directory
+    path: /nfs
+    owner: nobody
+    group: nogroup
+    mode: '1777'
